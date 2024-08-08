@@ -1,0 +1,22 @@
+name = "rabbit_type-app"
+compatibility_date = "2024-08-08"
+
+[vars]
+DATABASE_URL="prisma://accelerate.prisma-data.net/?api_key=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcGlfa2V5IjoiNzU2Nzc2N2QtY2ExZi00NTFlLTk5MTQtMDBkOGU3M2Q3YzQ5IiwidGVuYW50X2lkIjoiZGRiOTQzMDljODU5ZjA2Y2Y4MWMzYzAzZDljNjdlOTc3ZDU5ZmY4M2UzODJkMzc1NWM0ODM4M2RkMGViNjI1YyIsImludGVybmFsX3NlY3JldCI6ImY5ZTRhNjY4LWMzYTItNDZhNC1hNWFlLWVmNDM5NjJlMDc1OSJ9.7goitHPdwemyyvmMiLzw91uoM6my10hGp5K2ju74sn4"
+JWT_SECRET="secret_for_rabbitType"
+
+# [[kv_namespaces]]
+# binding = "MY_KV_NAMESPACE"
+# id = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+
+# [[r2_buckets]]
+# binding = "MY_BUCKET"
+# bucket_name = "my-bucket"
+
+# [[d1_databases]]
+# binding = "DB"
+# database_name = "my-database"
+# database_id = ""
+
+# [ai]
+# binding = "AI"
