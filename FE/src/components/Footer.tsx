@@ -17,7 +17,7 @@ const Footer = () => {
                 <RiMoneyDollarCircleLine  />
                 support
             </a>
-            <a href="https://github.com/GauravSinghdev" target="_blank" className="flex gap-1 items-center hover:text-white/80 hover:active:text-white/20">
+            <a href="https://github.com/GauravSinghdev/monkeyType---Clone" target="_blank" className="flex gap-1 items-center hover:text-white/80 hover:active:text-white/20">
                 <FaGithub />
                 github
             </a>
