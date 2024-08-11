@@ -64,20 +64,28 @@ const TextArea = ({ timer, random }: TextAreaProps) => {
   }, [timer]);
 
   useEffect(() => {
-    let timerInterval: NodeJS.Timeout;
-
+    // Initialize timerInterval as undefined to handle TypeScript's strict checks
+    let timerInterval: ReturnType<typeof setInterval> | undefined;
+  
     if (startTimer && currentTimer > 0) {
       timerInterval = setInterval(() => {
         setCurrentTimer((prev) => prev - 1);
       }, 1000);
     } else if (currentTimer === 0) {
-      clearInterval(timerInterval);
+      if (timerInterval !== undefined) {
+        clearInterval(timerInterval);
+      }
       calculateWpm();
       timeOver(); // Call timeOver when the timer reaches zero
     }
-
-    return () => clearInterval(timerInterval);
+  
+    return () => {
+      if (timerInterval !== undefined) {
+        clearInterval(timerInterval);
+      }
+    };
   }, [startTimer, currentTimer]);
+  
 
   useEffect(() => {
     if (textareaRef.current) {
@@ -103,11 +111,50 @@ const TextArea = ({ timer, random }: TextAreaProps) => {
     }
   }, [currentLetterIndex]);
 
+  // const handleTyping = (e: ChangeEvent<HTMLTextAreaElement>) => {
+  //   const value = e.target.value;
+  //   const currentWord = wordToType;
+  
+  //   if (e.nativeEvent.inputType === "deleteContentBackward") {
+  //     setBackspaceCount((prevCount) => prevCount + 1);
+  //   }
+  
+  //   setTypedText(value);
+  
+  //   if (!startTimer && value.length > 0) {
+  //     setStartTimer(true);
+  //   }
+  
+  //   if (value.length >= currentWord.length) {
+  //     // User has finished typing the entire text
+  //     if (!startTimer) {
+  //       setStartTimer(true);
+  //     }
+  //     calculateWpm();
+  //     timeOver(); // Call timeOver to handle data submission
+  //     return;
+  //   }
+  
+  //   if (
+  //     value[currentLetterIndex] !== currentWord[currentLetterIndex] &&
+  //     value[currentLetterIndex] !== undefined
+  //   ) {
+  //     setMistakes((prevCount) => prevCount + 1);
+  //   }
+  
+  //   setCurrentLetterIndex(value.length);
+  //   calculateWpm(); // Calculate WPM every time the user types
+  //   calculateAccuracy(value.length, mistakes);
+  // };
+
   const handleTyping = (e: ChangeEvent<HTMLTextAreaElement>) => {
     const value = e.target.value;
     const currentWord = wordToType;
   
-    if (e.nativeEvent.inputType === "deleteContentBackward") {
+    // Cast event to InputEvent to access inputType property
+    const inputEvent = e.nativeEvent as InputEvent;
+  
+    if (inputEvent.inputType === "deleteContentBackward") {
       setBackspaceCount((prevCount) => prevCount + 1);
     }
   
@@ -115,16 +162,6 @@ const TextArea = ({ timer, random }: TextAreaProps) => {
   
     if (!startTimer && value.length > 0) {
       setStartTimer(true);
-    }
-  
-    if (value.length >= currentWord.length) {
-      // User has finished typing the entire text
-      if (!startTimer) {
-        setStartTimer(true);
-      }
-      calculateWpm();
-      timeOver(); // Call timeOver to handle data submission
-      return;
     }
   
     if (
@@ -138,6 +175,7 @@ const TextArea = ({ timer, random }: TextAreaProps) => {
     calculateWpm(); // Calculate WPM every time the user types
     calculateAccuracy(value.length, mistakes);
   };
+  
   
 
   const calculateWpm = () => {
