@@ -12,6 +12,20 @@
 /*   box-sizing: border-box; */
 }
 
+.blinking-caret {
+  display: inline-block;
+  width: 2px; /* Width of the caret */
+  height: 1em; /* Height is usually based on the font-size */
+  /* background-color: #7cf5bd; Color of the caret */
+  animation: blink 0.8s step-end infinite;
+}
+
+@keyframes blink {
+  from, to { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+
 @layer base {
   html {
     font-family: 'Poppins', sans-serif; /* Ensure you use the font you imported */

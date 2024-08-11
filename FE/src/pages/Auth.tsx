@@ -12,6 +12,14 @@ import { useNavigate } from "react-router-dom";
 const Auth = () => {
   const navigate = useNavigate();
 
+  useEffect(() => {
+    if(localStorage.getItem('token'))
+    {
+      navigate("/");
+      return;
+    }
+  },[])
+
   const [registerFormValues, setRegisterFormValues] = useState({
     username: "",
     email: "",
@@ -63,8 +71,9 @@ const Auth = () => {
     e.preventDefault();
     try {
       const response = await axios.post(`${BACKEND_URL}/user/signup`, registerFormValues);
-      localStorage.setItem('name', response.data.user.username[0]);
-      localStorage.setItem('token', response.data.user.jwt);
+      localStorage.setItem('name', response.data.user.username);
+      localStorage.setItem('token', response.data.jwt);
+      localStorage.setItem('time', "30");
       console.log(response);
       if(response)
       navigate('/');
@@ -77,8 +86,9 @@ const Auth = () => {
     e.preventDefault();
     try {
       const response = await axios.post(`${BACKEND_URL}/user/signin`, loginFormValues);
-      localStorage.setItem('name', response.data.user.username[0]);
-      localStorage.setItem('token', response.data.user.jwt);
+      localStorage.setItem('name', response.data.user.username);
+      localStorage.setItem('token', response.data.jwt);
+      localStorage.setItem('time', "30");
       console.log(response);
       if(response)
       navigate('/');

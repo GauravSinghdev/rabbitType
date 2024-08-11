@@ -1,6 +1,7 @@
 import { Hono } from 'hono'
 import { userRouter } from './routes/user';
 import { cors } from 'hono/cors';
+import { typeRouter } from './routes/typing';
 
 const app = new Hono<{
   Bindings: {
@@ -11,5 +12,6 @@ const app = new Hono<{
 
 app.use("/*", cors());
 app.route("api/v1/user", userRouter);
+app.route("api/v1/typing", typeRouter);
 
 export default app;

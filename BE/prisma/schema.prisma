@@ -8,9 +8,24 @@ datasource db {
 }
 
 model User {
-  id       Int    @id @default(autoincrement())
-  username String  @unique
-  email    String  @unique
-  password String
-  createdDate DateTime @default(now())
+  id          Int          @id @default(autoincrement())
+  username    String       @unique
+  email       String       @unique
+  password    String
+  createdDate DateTime     @default(now())
+  tests       TypingTest[] @relation("UserTypingTests")
+}
+
+model TypingTest {
+  id              Int      @id @default(autoincrement())
+  userId          Int
+  timer           String
+  wpm             Int
+  rawWpm          Int
+  mistakes        Int
+  accuracy        Float
+  backspaceCount  Int
+  createdAt       DateTime @default(now())
+  
+  user            User    @relation("UserTypingTests", fields: [userId], references: [id], onDelete: Cascade)
 }

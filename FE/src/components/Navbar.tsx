@@ -12,7 +12,7 @@ import { Link, useNavigate } from "react-router-dom";
 const Navbar = () => {
   const navigate = useNavigate();
   const token = localStorage.getItem('token');
-  console.log(token);
+  //console.log(token);
   const name = localStorage.getItem('name') || "Rabbit";
 
   const handleLogout = () => {
@@ -60,9 +60,9 @@ const Navbar = () => {
           </div>
         ) : (
           <div className="flex items-center gap-6 text-[#656769] mt-2 me-5">
-            <Link to="/account" className="flex hover:text-white/80 gap-2 hover:active:text-white/20 items-center">
-              <FaRegUser className="h-4 w-4 " />
-              <span className="font-semibold">{name}</span>
+            <Link to="/account" className="flex hover:text-white/80 gap-1 hover:active:text-white/20 items-center">
+              <FaRegUser className="size-5 " />
+              <span className="text-base">{name.split(' ')[0]}</span>
             </Link>
             <Link to="/notification">
               <FaBell className="h-4 w-4 hover:text-white/80 hover:active:text-white/20" />
