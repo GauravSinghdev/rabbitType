@@ -15,6 +15,64 @@ export const typeRouter = new Hono<{
     }
   }>();
 
+typeRouter.get("/top-10-typing-rank/:timer", async (c) => {
+    // Extract query parameter with proper TypeScript handling
+    const timer = c.req.param('timer');
+  
+    // Initialize Prisma client
+    const prisma = new PrismaClient({
+        datasourceUrl: c.env.DATABASE_URL,
+    }).$extends(withAccelerate());
+  
+    try {
+        // Fetch top 10 TypingTest entries with specific timer and highest WPM, including the username
+        const topTypingTests = await prisma.typingTest.findMany({
+            where: {
+                timer: timer,
+            },
+            orderBy: [
+                {
+                    wpm: 'desc', // Sort by WPM in descending order
+                },
+                {
+                    mistakes: 'asc', // Then sort by mistakes (least errors first)
+                },
+                {
+                    createdAt: 'asc', // Finally, sort by created date (earliest first)
+                }
+            ],
+            take: 10, // Limit the results to 10 records
+            include: {
+                user: {
+                    select: {
+                        username: true, // Include the username from the User model
+                    }
+                }
+            }
+        });
+  
+        if (!topTypingTests.length) {
+            return c.json({
+                error: true,
+                message: "No typing tests found with the specified criteria"
+            });
+        }
+  
+        // Send the top typing test entries along with usernames as the response
+        return c.json({
+            topTypingTests: topTypingTests.map(test => ({
+                ...test,
+            }))
+        });
+  
+    } catch(error){
+        c.status(500);
+        return c.json({
+            message: "Internal server error"
+        });
+    }
+});
+
 typeRouter.use("/*", async (c, next) => {
     try{
         const authHeader = c.req.header('authorization') || ""; // Remove error of TypeScript
@@ -170,63 +228,7 @@ typeRouter.get("/user-typing-data", async (c) => {
 });
 
 
-typeRouter.get("/top-10-typing-rank/:timer", async (c) => {
-    // Extract query parameter with proper TypeScript handling
-    const timer = c.req.param('timer');
-  
-    // Initialize Prisma client
-    const prisma = new PrismaClient({
-        datasourceUrl: c.env.DATABASE_URL,
-    }).$extends(withAccelerate());
-  
-    try {
-        // Fetch top 10 TypingTest entries with specific timer and highest WPM, including the username
-        const topTypingTests = await prisma.typingTest.findMany({
-            where: {
-                timer: timer,
-            },
-            orderBy: [
-                {
-                    wpm: 'desc', // Sort by WPM in descending order
-                },
-                {
-                    mistakes: 'asc', // Then sort by mistakes (least errors first)
-                },
-                {
-                    createdAt: 'asc', // Finally, sort by created date (earliest first)
-                }
-            ],
-            take: 10, // Limit the results to 10 records
-            include: {
-                user: {
-                    select: {
-                        username: true, // Include the username from the User model
-                    }
-                }
-            }
-        });
-  
-        if (!topTypingTests.length) {
-            return c.json({
-                error: true,
-                message: "No typing tests found with the specified criteria"
-            });
-        }
-  
-        // Send the top typing test entries along with usernames as the response
-        return c.json({
-            topTypingTests: topTypingTests.map(test => ({
-                ...test,
-            }))
-        });
-  
-    } catch(error){
-        c.status(500);
-        return c.json({
-            message: "Internal server error"
-        });
-    }
-});
+
 
 
 
