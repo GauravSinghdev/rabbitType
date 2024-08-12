@@ -76,7 +76,7 @@ const Auth = () => {
     try {
       const response = await axios.post(`${BACKEND_URL}/user/signup`, registerFormValues);
       if (response.data && response.data.error) {
-        setErrorSignup(response.data.error || "Sign-up failed. Please try again.");
+        setErrorSignup("Sign-up failed. Please try again.");
       } else {
         localStorage.setItem("name", response.data.user.username);
         localStorage.setItem("token", response.data.jwt);
@@ -84,7 +84,7 @@ const Auth = () => {
         navigate("/");
       }
     } catch (error: any) {
-      setErrorSignup(error.response?.data?.message || "Sign-up failed. Please try again.");
+      setErrorSignup("Sign-up failed. Please try again.");
       console.error(error);
     } finally {
       setSpinSignup(false);
