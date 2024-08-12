@@ -61,14 +61,14 @@ userRouter.post('/signup', async (c) => {
             c.status(404);
             return c.json({
                 message: "Inputs not correct.",
-                errors: "User and Email already present.",
+                errors: "Username already present.",
             })
         }
         else if(ifUser){
             c.status(404);
             return c.json({
                 message: "Inputs not correct.",
-                errors: "User already present.",
+                errors: "Username already present.",
             })
         }
     
@@ -131,7 +131,7 @@ userRouter.post('/signin', async (c) => {
     if (!user || !(await bcrypt.compare(data.password, user.password))) { // Compare hashed password
       c.status(403);
       return c.json({
-        message: "Incorrect credentials!",
+        message: "Cred credentials!",
       });
     }
 

@@ -8,23 +8,27 @@ import { RiLoginCircleFill } from "react-icons/ri";
 import axios from "axios";
 import { BACKEND_URL } from "../config";
 import { useNavigate } from "react-router-dom";
+import { Spinner } from "../components/Spinner";
 
 const Auth = () => {
   const navigate = useNavigate();
 
+  const [errorSignin, setErrorSignin] = useState<string | null>(null);
+  const [errorSignup, setErrorSignup] = useState<string | null>(null);
+  const [spinSignup, setSpinSignup] = useState<boolean>(false);
+  const [spinSignin, setSpinSignin] = useState<boolean>(false);
+
   useEffect(() => {
-    if(localStorage.getItem('token'))
-    {
+    if (localStorage.getItem("token")) {
       navigate("/");
       return;
     }
-  },[])
+  }, [navigate]);
 
   const [registerFormValues, setRegisterFormValues] = useState({
     username: "",
     email: "",
     password: "",
-
   });
 
   const [isRegisterButtonDisabled, setIsRegisterButtonDisabled] = useState(true);
@@ -68,31 +72,43 @@ const Auth = () => {
 
   const handleSignUp = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
+    setSpinSignup(true);
     try {
       const response = await axios.post(`${BACKEND_URL}/user/signup`, registerFormValues);
-      localStorage.setItem('name', response.data.user.username);
-      localStorage.setItem('token', response.data.jwt);
-      localStorage.setItem('time', "30");
-      console.log(response);
-      if(response)
-      navigate('/');
-    } catch (error) {
-      console.log(error);
+      if (response.data && response.data.error) {
+        setErrorSignup(response.data.error || "Sign-up failed. Please try again.");
+      } else {
+        localStorage.setItem("name", response.data.user.username);
+        localStorage.setItem("token", response.data.jwt);
+        localStorage.setItem("time", "30");
+        navigate("/");
+      }
+    } catch (error: any) {
+      setErrorSignup(error.response?.data?.message || "Sign-up failed. Please try again.");
+      console.error(error);
+    } finally {
+      setSpinSignup(false);
     }
   };
 
   const handleSignIn = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
+    setSpinSignin(true);
     try {
       const response = await axios.post(`${BACKEND_URL}/user/signin`, loginFormValues);
-      localStorage.setItem('name', response.data.user.username);
-      localStorage.setItem('token', response.data.jwt);
-      localStorage.setItem('time', "30");
-      console.log(response);
-      if(response)
-      navigate('/');
-    } catch (error) {
-      console.log(error);
+      if (response.data && response.data.error) {
+        setErrorSignin(response.data.error || "Sign-in failed. Please try again.");
+      } else {
+        localStorage.setItem("name", response.data.user.username);
+        localStorage.setItem("token", response.data.jwt);
+        localStorage.setItem("time", "30");
+        navigate("/");
+      }
+    } catch (error: any) {
+      setErrorSignin(error.response?.data?.message || "Sign-in failed. Please try again.");
+      console.error(error);
+    } finally {
+      setSpinSignin(false);
     }
   };
 
@@ -102,12 +118,12 @@ const Auth = () => {
       <Navbar />
       <section className="flex-grow px-20 xl:px-48 text-white grid grid-cols-2">
         <div className="col-span-1 items-center flex justify-center mb-20">
-          <div className="flex flex-col gap-2 w-[35%]">
+          <div className="flex flex-col gap-5 w-[35%]">
             <div className="text-[#656769] flex gap-2 items-center">
               <FaUserPlus className="h-5 w-5" />
               REGISTER
             </div>
-            <form>
+            <form className="flex flex-col gap-1">
               <LabelledInput
                 placeholder="username"
                 name="username"
@@ -126,26 +142,34 @@ const Auth = () => {
                 type="password"
                 onChange={handleRegisterChange}
               />
+              {errorSignup && <div className="text-red-500 text-center">{errorSignup}</div>}
               <button
-                className={`w-full bg-[#303235] rounded-lg ${!isRegisterButtonDisabled && "hover:bg-white/80 active:bg-white/20"}`}
+                className={`w-full bg-[#303235] rounded-lg flex items-center justify-center ${
+                  !isRegisterButtonDisabled && "hover:bg-white/80 active:bg-white/20"
+                }`}
                 disabled={isRegisterButtonDisabled}
                 onClick={handleSignUp}
               >
-                <div className={`text-[#656769] p-2 flex gap-2 justify-center items-center ${!isRegisterButtonDisabled && "text-white/60 hover:text-black/70"}`}>
+                <div
+                  className={`text-[#656769] p-2 flex gap-2 justify-center items-center ${
+                    !isRegisterButtonDisabled && "text-white/60 hover:text-black/70"
+                  }`}
+                >
                   <FaUserPlus className="h-5 w-5" />
                   sign up
                 </div>
+                {spinSignup && <Spinner size={"small"} />}
               </button>
             </form>
           </div>
         </div>
         <div className="col-span-1 items-center flex justify-center mb-20">
-          <div className="flex flex-col gap-2 w-[35%]">
+          <div className="flex flex-col gap-5 w-[35%]">
             <div className="text-[#656769] flex gap-2 items-center">
               <RiLoginCircleFill className="h-5 w-5" />
               LOGIN
             </div>
-            <form>
+            <form className="flex flex-col gap-1">
               <LabelledInput
                 placeholder="email"
                 name="email"
@@ -158,24 +182,23 @@ const Auth = () => {
                 type="password"
                 onChange={handleLoginChange}
               />
-              <div className="flex items-center text-[#acb2b8] mt-2 mb-3">
-                <input
-                  type="checkbox"
-                  id="rememberMe"
-                  name="rememberMe"
-                  className="mr-2 bg-[#303235] w-4 h-4"
-                />
-                <label htmlFor="rememberMe">remember me</label>
-              </div>
+              {errorSignin && <div className="text-red-500 text-center">{errorSignin}</div>}
               <button
-                className={`w-full bg-[#303235] rounded-lg ${!isLoginButtonDisabled && "hover:bg-white/80 active:bg-white/20"}`}
+                className={`w-full bg-[#303235] rounded-lg flex items-center justify-center ${
+                  !isLoginButtonDisabled && "hover:bg-white/80 active:bg-white/20"
+                }`}
                 disabled={isLoginButtonDisabled}
                 onClick={handleSignIn}
               >
-                <div className={`text-[#656769] flex p-2 gap-2 justify-center items-center ${!isLoginButtonDisabled && "text-white/60 hover:text-black/70"}`}>
+                <div
+                  className={`text-[#656769] flex p-2 gap-2 justify-center items-center ${
+                    !isLoginButtonDisabled && "text-white/60 hover:text-black/70"
+                  }`}
+                >
                   <RiLoginCircleFill className="h-5 w-5" />
                   sign in
                 </div>
+                {spinSignin && <Spinner size={"small"} />}
               </button>
             </form>
           </div>
