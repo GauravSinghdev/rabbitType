@@ -7,7 +7,7 @@ import TextArea from "../components/TextArea";
 const timers = ['15', '30', '45'];
 
 const Home = () => {
-  const time = localStorage.getItem('time') || "";
+  const time = localStorage.getItem('time') || "30";
   const [timer, setTimer] = useState<string>(time);
   const [randomNumber, setRandomNumber] = useState<number>(0);
 
@@ -33,7 +33,7 @@ const Home = () => {
             <li
               key={index}
               onClick={() => handleSetTimer(time)}
-              className={`px-3 py-1 text-2xl ${time === timer ? "text-[#7cf5bd]" : ""}`}
+              className={`px-3 py-1 text-2xl ${time === timer ? "text-[#7cf5bd] underline underline-offset-4" : ""}`}
             >
               {time}
             </li>

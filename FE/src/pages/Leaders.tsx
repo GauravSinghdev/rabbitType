@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { motion } from "framer-motion";
 import Footer from "../components/Footer";
 import Header from "../components/Header";
 import Navbar from "../components/Navbar";
@@ -19,7 +20,7 @@ interface TypingTest {
 const timerArr = ['15', '30', '45'];
 
 const Leader = () => {
-  const ltime = localStorage.getItem('Ltime') || "";
+  const ltime = localStorage.getItem('Ltime') || "30";
   const [ltimer, setLTimer] = useState<string>(ltime);
   const [arr, setArr] = useState<TypingTest[]>([]);
   const [loading, setLoading] = useState(true);
@@ -39,10 +40,9 @@ const Leader = () => {
         },
       });
 
-      if(response.data.error)
-      {
+      if (response.data.error) {
         console.log("no array avail");
-        setNoData(true)
+        setNoData(true);
       }
       const resArr = response.data.topTypingTests;
       setArr(resArr);
@@ -58,7 +58,7 @@ const Leader = () => {
 
   useEffect(() => {
     localStorage.setItem("Ltime", "30");
-  },[])
+  }, []);
 
   useEffect(() => {
     getRequest();
@@ -70,31 +70,52 @@ const Leader = () => {
       <Navbar />
       <section className="flex-grow px-20 xl:px-48 text-[#d1d0c5]">
         <div className="flex flex-grow justify-center relative mb-10 items-center">
-          <div className="text-center text-5xl underline underline-offset-4 mb-10 font-[cursive] flex">Leaderboard</div>
+          <div className="text-center text-5xl underline underline-offset-4 mb-10 flex">
+            Leaderboard
+          </div>
           <ul className="w-fit flex gap-5 px-5 py-3 mx-auto rounded-3xl my-16 cursor-pointer border absolute right-72 top-[-70px]">
-            {
-              timerArr.map((time, indx) => (
-                <li 
-                  key={indx}
-                  onClick={() => handleSetTimer(time)}
-                  className={`px-3 py-1 text-lg ${time === ltimer ? "text-[#7cf5bd]" : ""}`}>
-                  {time}
-                </li>
-              ))
-            }
+            {timerArr.map((time, indx) => (
+              <li
+                key={indx}
+                onClick={() => handleSetTimer(time)}
+                className={`px-3 py-1 text-lg ${time === ltimer ? "text-[#7cf5bd]  underline underline-offset-4 decoration-2" : ""}`}
+              >
+                {time}
+              </li>
+            ))}
           </ul>
         </div>
         {loading ? (
-          <div className="flex justify-center items-center mt-64">
+          <motion.div
+            className="flex justify-center items-center mt-64"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5 }}
+          >
             <Progress />
-          </div>
+          </motion.div>
         ) : noData ? (
-          <div className="text-center mt-64 text-3xl">
+          <motion.div
+            className="text-center mt-64 text-3xl"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5 }}
+          >
             <p>No data available</p>
-          </div>
+          </motion.div>
         ) : (
-          <div className="flex justify-center mx-10">
-            <table className="mx-auto w-fit text-center cursor-pointer">
+          <motion.div
+            className="flex justify-center mx-10"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5 }}
+          >
+            <motion.table
+              className="mx-auto w-fit text-center cursor-pointer"
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.5 }}
+            >
               <thead>
                 <tr className="text-[#7cf5bd] px-2 border-b-4">
                   <th className="mx-40 text-3xl p-10 pb-3">Rank</th>
@@ -107,18 +128,24 @@ const Leader = () => {
               </thead>
               <tbody>
                 {arr.map((ele, index) => (
-                  <tr key={index} className="py-5">
+                  <motion.tr
+                    key={index}
+                    className="py-5"
+                    initial={{ opacity: 0, x: -50 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.5, delay: index * 0.1 }}
+                  >
                     <td className="text-xl py-3">{index + 1}</td>
                     <td className="text-xl py-3">{ele.user.username}</td>
                     <td className="text-xl py-3">{ele.timer}</td>
                     <td className="text-xl py-3">{ele.wpm}</td>
                     <td className="text-xl py-3">{ele.accuracy.toFixed(2)}%</td>
                     <td className="text-xl py-3">{new Date(ele.createdAt).toLocaleDateString()}</td>
-                  </tr>
+                  </motion.tr>
                 ))}
               </tbody>
-            </table>
-          </div>
+            </motion.table>
+          </motion.div>
         )}
       </section>
       <Footer />

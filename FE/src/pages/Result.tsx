@@ -6,39 +6,64 @@ import Progress from '../components/Progress';
 import { motion } from 'framer-motion';
 
 const Result = () => {
-  const [gotRes, setGotRes] = useState(false);
   const [resultData, setResultData] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [noData, setNoData] = useState(false);
 
   const getData = () => {
     // Retrieve the data from localStorage
     const data = localStorage.getItem('cTyped-result');
+    console.log(data);
     
     if (data) {
       setResultData(JSON.parse(data));
-      setGotRes(true); // Update state to show results
+      setNoData(false);
+    } else {
+      setNoData(true);
     }
-  }
+    setIsLoading(false); // Data retrieval is complete
+  };
 
   useEffect(() => {
     getData();
   }, []);
 
-  return (
-    <div className="flex flex-col min-h-screen bg-gray-900">
-      <Header />
-      <Navbar />
-      <section className="flex-grow px-20 xl:px-48 py-10 text-white">
-        {!gotRes ? (
+  if (isLoading) {
+    return (
+      <div className="flex flex-col min-h-screen">
+        <Header />
+        <Navbar />
+        <section className="flex-grow px-20 xl:px-48 text-[#d1d0c5] text-center">
           <motion.div 
             initial={{ opacity: 0, y: -20 }} 
             animate={{ opacity: 1, y: 0 }} 
             transition={{ duration: 0.5 }}
             className="text-center"
           >
-            <Progress />
-            <div className='border border-gray-600 rounded-md mt-10 mx-auto p-4 w-fit'>
-              <h1 className='text-2xl font-semibold'>Result Page</h1>
+            <div className="text-5xl underline underline-offset-4 mb-72 font-cursive">
+            Your Latest Test
             </div>
+            <Progress />
+          </motion.div>
+        </section>
+        <Footer />
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex flex-col min-h-screen">
+      <Header />
+      <Navbar />
+      <section className="flex-grow px-20 xl:px-48 text-[#d1d0c5]">
+        {noData ? (
+          <motion.div 
+            initial={{ opacity: 0, y: -20 }} 
+            animate={{ opacity: 1, y: 0 }} 
+            transition={{ duration: 0.5 }}
+            className="text-center mt-96 text-3xl"
+          >
+            <p>No data available</p>
           </motion.div>
         ) : (
           <motion.div 
@@ -47,8 +72,11 @@ const Result = () => {
             transition={{ duration: 0.5 }}
             className="text-center"
           >
-            <div className="text-5xl underline underline-offset-4 mb-10 flex justify-center">Your Result</div>
-            <div className='mt-4 border-2 border-gray-600 rounded-md p-4 mx-80 flex flex-col gap-5 text-left text-lg'>
+            <div className="text-5xl underline underline-offset-4 mb-28 font-cursive">
+              RESULT
+            </div>
+            <p className='text-xl mb-4'></p>
+            <div className='border border-[#7cf5bd] p-6 mx-auto max-w-4xl grid grid-cols-1 sm:grid-cols-2 gap-5 rounded-2xl text-left text-lg'>
               <p><strong>Timer:</strong> {resultData.timer} seconds</p>
               <p><strong>Words Per Minute:</strong> {resultData.wpm}</p>
               <p><strong>Raw WPM:</strong> {resultData.rawWpm}</p>

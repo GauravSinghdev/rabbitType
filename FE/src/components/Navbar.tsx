@@ -34,16 +34,16 @@ const Navbar = () => {
           <span className="text-xs absolute left-1 bottom-8 text-white/40">rabbit see</span>
         </a>
         <div className="flex items-center gap-5 text-[#656769] mt-2">
-          <a href="/">
+          <a href="/" title="take test">
             <FaRegKeyboard className="h-5 w-5 hover:text-white/80 hover:active:text-white/20" />
           </a>
-          <Link to="/leaders">
+          <Link to="/leaders" title="leaderboard">
             <FaCrown className="h-5 w-5 hover:text-white/80 hover:active:text-white/20" />
           </Link>
-          <Link to="/about">
+          <Link to="/about" title="about">
             <IoInformationOutline className="h-6 w-6 hover:text-white/80 hover:active:text-white/20" />
           </Link>
-          <Link to="/settings">
+          <Link to="/settings" title="settings">
             <IoIosSettings className="h-5 w-5 hover:text-white/80 hover:active:text-white/20" />
           </Link>
         </div>

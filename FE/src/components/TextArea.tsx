@@ -37,6 +37,12 @@ const TextArea = ({ timer, random }: TextAreaProps) => {
         accuracy: parseFloat(accuracy.toFixed(2)),
         backspaceCount,
       };
+
+      if(!localStorage.getItem('token'))
+      {
+        localStorage.setItem('cTyped-result', JSON.stringify(postData));
+        navigate("/result");  
+      }
       console.log(postData);
       const response = await axios.post(
         `${BACKEND_URL}/typing/latest-typedata-insert`,
@@ -111,45 +117,15 @@ const TextArea = ({ timer, random }: TextAreaProps) => {
     }
   }, [currentLetterIndex]);
 
-  // const handleTyping = (e: ChangeEvent<HTMLTextAreaElement>) => {
-  //   const value = e.target.value;
-  //   const currentWord = wordToType;
-  
-  //   if (e.nativeEvent.inputType === "deleteContentBackward") {
-  //     setBackspaceCount((prevCount) => prevCount + 1);
-  //   }
-  
-  //   setTypedText(value);
-  
-  //   if (!startTimer && value.length > 0) {
-  //     setStartTimer(true);
-  //   }
-  
-  //   if (value.length >= currentWord.length) {
-  //     // User has finished typing the entire text
-  //     if (!startTimer) {
-  //       setStartTimer(true);
-  //     }
-  //     calculateWpm();
-  //     timeOver(); // Call timeOver to handle data submission
-  //     return;
-  //   }
-  
-  //   if (
-  //     value[currentLetterIndex] !== currentWord[currentLetterIndex] &&
-  //     value[currentLetterIndex] !== undefined
-  //   ) {
-  //     setMistakes((prevCount) => prevCount + 1);
-  //   }
-  
-  //   setCurrentLetterIndex(value.length);
-  //   calculateWpm(); // Calculate WPM every time the user types
-  //   calculateAccuracy(value.length, mistakes);
-  // };
-
   const handleTyping = (e: ChangeEvent<HTMLTextAreaElement>) => {
     const value = e.target.value;
     const currentWord = wordToType;
+
+    if(value.length === currentWord.length)
+    {
+      timeOver();
+      return
+    }
   
     // Cast event to InputEvent to access inputType property
     const inputEvent = e.nativeEvent as InputEvent;

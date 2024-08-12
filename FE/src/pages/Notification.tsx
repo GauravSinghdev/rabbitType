@@ -8,7 +8,7 @@ const Notification = () => {
       <Header />
       <Navbar />
       <section className="flex-grow px-20 xl:px-48 text-white">
-        <h1>Notification Page</h1>
+        <h1>Notification will be here to notify the updates regarding App.</h1>
       </section>
       <Footer />
     </div>

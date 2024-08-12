@@ -23,9 +23,8 @@ const Auth = () => {
   const [registerFormValues, setRegisterFormValues] = useState({
     username: "",
     email: "",
-    verifyEmail: "",
     password: "",
-    verifyPassword: "",
+
   });
 
   const [isRegisterButtonDisabled, setIsRegisterButtonDisabled] = useState(true);
@@ -122,20 +121,8 @@ const Auth = () => {
                 onChange={handleRegisterChange}
               />
               <LabelledInput
-                placeholder="verify email"
-                name="verifyEmail"
-                type="email"
-                onChange={handleRegisterChange}
-              />
-              <LabelledInput
                 placeholder="password"
                 name="password"
-                type="password"
-                onChange={handleRegisterChange}
-              />
-              <LabelledInput
-                placeholder="verify password"
-                name="verifyPassword"
                 type="password"
                 onChange={handleRegisterChange}
               />
