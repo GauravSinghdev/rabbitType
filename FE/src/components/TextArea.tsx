@@ -42,6 +42,7 @@ const TextArea = ({ timer, random }: TextAreaProps) => {
       {
         localStorage.setItem('cTyped-result', JSON.stringify(postData));
         navigate("/result");  
+        return;
       }
       console.log(postData);
       const response = await axios.post(
