@@ -3,7 +3,7 @@ import { PrismaClient } from '@prisma/client/edge';
 import { withAccelerate } from '@prisma/extension-accelerate';
 import { sign } from 'hono/jwt';
 import { z } from 'zod';
-import bcrypt from 'bcryptjs'; // Import bcryptjs
+import bcrypt from 'bcryptjs';
 
 // Define schema for signup
 const signupSchema = z.object({
@@ -14,7 +14,7 @@ const signupSchema = z.object({
 
 // Define schema for signin
 const signinSchema = z.object({
-    email: z.string().email("Invalid email format"),
+  email: z.string().email("Invalid email format"),
   password: z.string().min(6, "Password must be at least 6 characters long"),
 });
 
@@ -33,74 +33,61 @@ userRouter.post('/signup', async (c) => {
     if (!success) {
       c.status(400);
       return c.json({
-        message: "Inputs not correct",
-        errors: error,
+        message: "Input validation failed.",
+        errors: error.flatten().fieldErrors,
       });
     }
 
-    const hashedPassword = await bcrypt.hash(data.password, 10); // Hash the password
-
     const prisma = new PrismaClient({
-      datasourceUrl: c.env.DATABASE_URL,
+      datasources: {
+        db: { url: c.env.DATABASE_URL }
+      }
     }).$extends(withAccelerate());
 
-    const ifUser = await prisma.user.findFirst({
+    try {
+      const existingUser = await prisma.user.findFirst({
         where: {
-          username: data.username,
+          OR: [
+            { username: data.username.trim() },
+            { email: data.email.trim() }
+          ]
         }
-    });
+      });
 
-    const ifEmail = await prisma.user.findFirst({
-        where: {
-          email: data.email,
-        }
-    });
-
-    if(ifUser || ifEmail){
-        if(ifUser && ifEmail){
-            c.status(404);
-            return c.json({
-                message: "Inputs not correct.",
-                errors: "Username already present.",
-            })
-        }
-        else if(ifUser){
-            c.status(404);
-            return c.json({
-                message: "Inputs not correct.",
-                errors: "Username already present.",
-            })
-        }
-    
-        else{
-            c.status(404);
-            return c.json({
-                message: "Inputs not correct.",
-                errors: "Email already present.",
-            })
-        }
-    }
-    
-    const user = await prisma.user.create({
-      data: {
-        email: data.email.trim(),
-        username: data.username.trim(),
-        password: hashedPassword, // Store hashed password
+      if (existingUser) {
+        c.status(409);
+        return c.json({
+          message: "Username or email already exists.",
+          errors: existingUser.username === data.username ? "Username already in use." : "Email already in use."
+        });
       }
-    });
 
-    const jwt = await sign({ id: user.id }, c.env.JWT_SECRET);
+      const hashedPassword = await bcrypt.hash(data.password, 10);
 
-    return c.json({
-      message: 'Signup successfully.',
-      jwt,
-      user,
-    });
+      const user = await prisma.user.create({
+        data: {
+          email: data.email.trim(),
+          username: data.username.trim(),
+          password: hashedPassword,
+        }
+      });
+
+      const payload = { id: user.id, exp: Math.floor(Date.now() / 1000) + (5 * 60 * 60) }; // Expire in 5 hours
+      const jwt = sign(payload, c.env.JWT_SECRET);
+
+      return c.json({
+        message: 'Signup successful.',
+        jwt,
+        user: { id: user.id, username: user.username, email: user.email },
+      });
+    } finally {
+      await prisma.$disconnect();
+    }
   } catch (e) {
-    console.error(e); // Log error for debugging
+    console.error('Error during signup:', e);
     c.status(500);
     return c.json({
-      message: 'Internal server error',
+      message: 'Internal server error. Please try again later.',
     });
   }
 });
@@ -113,42 +100,47 @@ userRouter.post('/signin', async (c) => {
     if (!success) {
       c.status(400);
       return c.json({
-        message: "Inputs not correct",
-        errors: error,
+        message: "Input validation failed.",
+        errors: error.flatten().fieldErrors,
       });
     }
 
     const prisma = new PrismaClient({
-      datasourceUrl: c.env.DATABASE_URL,
+      datasources: {
+        db: { url: c.env.DATABASE_URL }
+      }
     }).$extends(withAccelerate());
 
-    const user = await prisma.user.findFirst({
-      where: {
-        email: data.email,
-      }
-    });
-
-    if (!user || !(await bcrypt.compare(data.password, user.password))) { // Compare hashed password
-      c.status(403);
-      return c.json({
-        message: "Cred credentials!",
+    try {
+      const user = await prisma.user.findFirst({
+        where: {
+          email: data.email.trim(),
+        }
       });
+
+      if (!user || !(await bcrypt.compare(data.password, user.password))) {
+        c.status(403);
+        return c.json({
+          message: "Incorrect credentials!",
+        });
+      }
+
+      const payload = { id: user.id, exp: Math.floor(Date.now() / 1000) + (5 * 60 * 60) }; // Expire in 5 hours
+      const jwt = sign(payload, c.env.JWT_SECRET);
+
+      return c.json({
+        message: 'Signin successful.',
+        jwt,
+        user: { id: user.id, username: user.username, email: user.email },
+      });
+    } finally {
+      await prisma.$disconnect();
     }
-
-    const jwt = await sign({ id: user.id }, c.env.JWT_SECRET);
-
-    return c.json({
-      message: 'Signin successfully.',
-      jwt,
-      user,
-    });
   } catch (e) {
-    console.error(e); // Log error for debugging
+    console.error('Error during signin:', e);
     c.status(500);
     return c.json({
-      message: 'Internal server error',
+      message: 'Internal server error. Please try again later.',
     });
   }
 });
-
-
