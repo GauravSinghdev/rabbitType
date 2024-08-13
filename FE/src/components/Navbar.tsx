@@ -34,7 +34,7 @@ const Navbar = () => {
           <span className="text-xs absolute left-1 bottom-8 text-white/40">rabbit see</span>
         </a>
         <div className="flex items-center gap-5 text-[#656769] mt-2">
-          <a href="/" title="take test">
+          <a href="/" title="start test">
             <FaRegKeyboard className="h-5 w-5 hover:text-white/80 hover:active:text-white/20" />
           </a>
           <Link to="/leaders" title="leaderboard">

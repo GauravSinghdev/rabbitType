@@ -28,43 +28,46 @@ const TextArea = ({ timer, random }: TextAreaProps) => {
   const highlightedTextRef = useRef<HTMLDivElement>(null);
 
   const timeOver = async () => {
-    try {
-      const postData = {
-        timer: timer,
+    
+    const postData = {
+        timer: String(timer),
         wpm,
         rawWpm,
         mistakes,
         accuracy: parseFloat(accuracy.toFixed(2)),
         backspaceCount,
-      };
+    };
 
-      if(!localStorage.getItem('token'))
-      {
-        localStorage.setItem('cTyped-result', JSON.stringify(postData));
-        navigate("/result");  
-        return;
-      }
-      console.log(postData);
-      const response = await axios.post(
-        `${BACKEND_URL}/typing/latest-typedata-insert`,
-        postData,
-        {
-          headers: {
-            Authorization: localStorage.getItem("token"),
-          },
+    if (!localStorage.getItem('token')) {
+      localStorage.setItem('cTyped-result', JSON.stringify(postData));
+      navigate("/result");  
+      return;
+  }
+    try {       
+
+        const token = localStorage.getItem("token");
+
+        const response = await axios.post(
+            `${BACKEND_URL}/typing/latest-typedata-insert`,
+            postData,
+            {
+                headers: {
+                    Authorization: token,
+                },
+            }
+        );
+
+        if (response && response.data) {
+            console.log("Data inserted successfully");
+            localStorage.setItem('cTyped-result', JSON.stringify(postData));
+            navigate("/result");  
         }
-      );
-
-      if (response && response.data) {
-        console.log("Data inserted successfully");
-        localStorage.setItem('cTyped-result', JSON.stringify(postData));
-        navigate("/result");  
-      }
     } catch (error) {
-      console.error("Error sending data:", error);
-      alert("An error occurred while saving your data. Please try again.");
+        console.error("Error sending data:", error);
+        alert("An error occurred while saving your data. Please try again.");
     }
-  };
+};
+
 
   useEffect(() => {
     setCurrentTimer(parseInt(timer, 10));

@@ -72,8 +72,17 @@ userRouter.post('/signup', async (c) => {
         }
       });
 
-      const payload = { id: user.id, exp: Math.floor(Date.now() / 1000) + (5 * 60 * 60) }; // Expire in 5 hours
-      const jwt = sign(payload, c.env.JWT_SECRET);
+      // const jwt = await sign({
+      //   id: user.id
+      // },c.env.JWT_SECRET);
+  
+      const jwt = await sign(
+        {
+            id: user.id,
+            exp: Math.floor(Date.now() / 1000) + (5 * 60 * 60) // Token expires in 5 hours
+        },
+        c.env.JWT_SECRET
+      );
 
       return c.json({
         message: 'Signup successful.',
@@ -125,8 +134,17 @@ userRouter.post('/signin', async (c) => {
         });
       }
 
-      const payload = { id: user.id, exp: Math.floor(Date.now() / 1000) + (5 * 60 * 60) }; // Expire in 5 hours
-      const jwt = sign(payload, c.env.JWT_SECRET);
+      // const jwt = await sign({
+      //   id: user.id
+      // },c.env.JWT_SECRET);
+      
+      const jwt = await sign(
+        {
+            id: user.id,
+            exp: Math.floor(Date.now() / 1000) + (5 * 60 * 60) // Token expires in 5 hours
+        },
+        c.env.JWT_SECRET
+      );
 
       return c.json({
         message: 'Signin successful.',
