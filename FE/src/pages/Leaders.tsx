@@ -69,11 +69,11 @@ const Leader = () => {
       <Header />
       <Navbar />
       <section className="flex-grow px-20 xl:px-48 text-[#d1d0c5]">
-        <div className="flex flex-grow justify-center relative mb-10 items-center">
-          <div className="text-center text-5xl underline underline-offset-4 mb-10 flex">
+        <div className="flex flex-col justify-center items-center">
+          <div className=" text-5xl underline underline-offset-4">
             Leaderboard
           </div>
-          <ul className="w-fit flex gap-5 px-5 py-3 mx-auto rounded-3xl my-16 cursor-pointer border absolute right-72 top-[-70px]">
+          <ul className="w-fit flex gap-5 px-5 py-3 mx-auto rounded-3xl mt-2 mb-4] cursor-pointer">
             {timerArr.map((time, indx) => (
               <li
                 key={indx}
