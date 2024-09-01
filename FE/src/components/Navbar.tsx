@@ -1,11 +1,11 @@
 import { FaRegKeyboard } from "react-icons/fa";
-import { SiMonkeytype } from "react-icons/si";
 import { IoInformationOutline } from "react-icons/io5";
 import { FaCrown } from "react-icons/fa";
 import { IoIosSettings } from "react-icons/io";
 import { FaBell } from "react-icons/fa";
 import { FaRegUser } from "react-icons/fa";
 import { RiLogoutBoxRLine } from "react-icons/ri";
+import { PiRabbit } from "react-icons/pi";
 
 import { Link, useNavigate } from "react-router-dom";
 
@@ -26,9 +26,8 @@ const Navbar = () => {
     <nav className="h-16 flex justify-between px-20 xl:py-14 xl:px-48 items-center">
       <div className="flex items-center gap-2">
         <a href="/">
-          <SiMonkeytype className="h-10 w-10 text-[#7cf5bd]" />
+          <PiRabbit  className="h-10 w-10 mb-2 text-[#7cf5bd]" />
         </a>
-
         <a href="/" className="text-4xl me-4 text-[#d1d0c5] relative">
           <div>rabbitType</div>
           <span className="text-xs absolute left-1 bottom-8 text-white/40">rabbit see</span>
