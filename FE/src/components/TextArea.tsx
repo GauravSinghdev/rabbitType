@@ -28,55 +28,50 @@ const TextArea = ({ timer, random }: TextAreaProps) => {
   const highlightedTextRef = useRef<HTMLDivElement>(null);
 
   const timeOver = async () => {
-    
     const postData = {
-        timer: String(timer),
-        wpm,
-        rawWpm,
-        mistakes,
-        accuracy: parseFloat(accuracy.toFixed(2)),
-        backspaceCount,
+      timer: String(timer),
+      wpm,
+      rawWpm,
+      mistakes,
+      accuracy: parseFloat(accuracy.toFixed(2)),
+      backspaceCount,
     };
 
-    if (!localStorage.getItem('token')) {
-      localStorage.setItem('cTyped-result', JSON.stringify(postData));
-      navigate("/result");  
+    if (!localStorage.getItem("token")) {
+      localStorage.setItem("cTyped-result", JSON.stringify(postData));
+      navigate("/result");
       return;
-  }
-    try {       
-
-        const token = localStorage.getItem("token");
-
-        const response = await axios.post(
-            `${BACKEND_URL}/typing/latest-typedata-insert`,
-            postData,
-            {
-                headers: {
-                    Authorization: token,
-                },
-            }
-        );
-
-        if (response && response.data) {
-            console.log("Data inserted successfully");
-            localStorage.setItem('cTyped-result', JSON.stringify(postData));
-            navigate("/result");  
-        }
-    } catch (error) {
-        console.error("Error sending data:", error);
-        alert("An error occurred while saving your data. Please try again.");
     }
-};
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axios.post(
+        `${BACKEND_URL}/typing/latest-typedata-insert`,
+        postData,
+        {
+          headers: {
+            Authorization: token,
+          },
+        }
+      );
 
+      if (response && response.data) {
+        console.log("Data inserted successfully");
+        localStorage.setItem("cTyped-result", JSON.stringify(postData));
+        navigate("/result");
+      }
+    } catch (error) {
+      console.error("Error sending data:", error);
+      alert("An error occurred while saving your data. Please try again.");
+    }
+  };
 
   useEffect(() => {
     setCurrentTimer(parseInt(timer, 10));
   }, [timer]);
 
   useEffect(() => {
-    // Initialize timerInterval as undefined to handle TypeScript's strict checks
     let timerInterval: ReturnType<typeof setInterval> | undefined;
-  
+
     if (startTimer && currentTimer > 0) {
       timerInterval = setInterval(() => {
         setCurrentTimer((prev) => prev - 1);
@@ -86,16 +81,15 @@ const TextArea = ({ timer, random }: TextAreaProps) => {
         clearInterval(timerInterval);
       }
       calculateWpm();
-      timeOver(); // Call timeOver when the timer reaches zero
+      timeOver();
     }
-  
+
     return () => {
       if (timerInterval !== undefined) {
         clearInterval(timerInterval);
       }
     };
   }, [startTimer, currentTimer]);
-  
 
   useEffect(() => {
     if (textareaRef.current) {
@@ -113,9 +107,15 @@ const TextArea = ({ timer, random }: TextAreaProps) => {
         const spanRect = caretSpan.getBoundingClientRect();
         const spanLeft = spanRect.left - containerRect.left;
         const spanRight = spanRect.right - containerRect.left;
+        const containerWidth = highlightedTextRef.current.clientWidth;
 
-        if (spanLeft < 0 || spanRight > highlightedTextRef.current.clientWidth) {
-          highlightedTextRef.current.scrollLeft = spanLeft;
+        // Smooth scrolling to keep caret in view
+        if (spanLeft < 50 || spanRight > containerWidth - 50) {
+          const scrollTarget = highlightedTextRef.current.scrollLeft + spanLeft - 50;
+          highlightedTextRef.current.scrollTo({
+            left: scrollTarget,
+            behavior: "smooth",
+          });
         }
       }
     }
@@ -125,52 +125,47 @@ const TextArea = ({ timer, random }: TextAreaProps) => {
     const value = e.target.value;
     const currentWord = wordToType;
 
-    if(value.length === currentWord.length)
-    {
+    if (value.length === currentWord.length) {
       timeOver();
-      return
+      return;
     }
-  
-    // Cast event to InputEvent to access inputType property
+
     const inputEvent = e.nativeEvent as InputEvent;
-  
+
     if (inputEvent.inputType === "deleteContentBackward") {
       setBackspaceCount((prevCount) => prevCount + 1);
     }
-  
+
     setTypedText(value);
-  
+
     if (!startTimer && value.length > 0) {
       setStartTimer(true);
     }
-  
+
     if (
       value[currentLetterIndex] !== currentWord[currentLetterIndex] &&
       value[currentLetterIndex] !== undefined
     ) {
       setMistakes((prevCount) => prevCount + 1);
     }
-  
+
     setCurrentLetterIndex(value.length);
-    calculateWpm(); // Calculate WPM every time the user types
+    calculateWpm();
     calculateAccuracy(value.length, mistakes);
   };
-  
-  
 
   const calculateWpm = () => {
     const wordsTyped = typedText.split(" ").filter((word) => word.length > 0).length;
     const timeElapsed = (parseInt(timer, 10) - currentTimer) / 60;
-  
+
     if (timeElapsed > 0) {
       const rawWpmCalc = Math.round(typedText.length / 5 / timeElapsed);
       const wpmCalc = Math.round(wordsTyped / timeElapsed);
-  
-      // Ensure rawWpm is at least as much as wpm
+
       setWpm(wpmCalc);
       setRawWpm(Math.max(wpmCalc, rawWpmCalc));
     }
-  };  
+  };
 
   const calculateAccuracy = (totalTyped: number, incorrect: number) => {
     const correctTyped = totalTyped - incorrect;
@@ -202,7 +197,9 @@ const TextArea = ({ timer, random }: TextAreaProps) => {
         <span key={index} className={`inline ${index === currentLetterIndex ? "relative" : ""}`}>
           <span className={colorClass}>{letter}</span>
           {index === currentLetterIndex && (
-            <span className="blinking-caret absolute top-[-3px] left-[-5px] text-[30px] text-[#7cf5bd]">|</span>
+            <span className="blinking-caret absolute top-[-3px] left-[-5px] text-[30px] text-[#7cf5bd]">
+              |
+            </span>
           )}
         </span>
       );
@@ -210,39 +207,46 @@ const TextArea = ({ timer, random }: TextAreaProps) => {
   };
 
   return (
-    <motion.div 
+    <motion.div
       className="relative"
-      initial={{ opacity: 0 }} 
-      animate={{ opacity: 1 }} 
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
     >
-      <motion.h1 
+      <motion.h1
         className={`text-3xl ms-5 text-green-200 opacity-0 ${startTimer ? "opacity-100" : ""}`}
-        initial={{ scale: 0.8 }} 
-        animate={{ scale: 1 }} 
+        initial={{ scale: 0.8 }}
+        animate={{ scale: 1 }}
         transition={{ duration: 0.5 }}
       >
         {currentTimer}
       </motion.h1>
-      <div className="relative text-3xl font-cursive tracking-[3px]" style={{ wordSpacing: '10px' }}>
+      <div className="relative text-3xl font-cursive tracking-[3px]" style={{ wordSpacing: "10px" }}>
         <textarea
           ref={textareaRef}
           value={typedText}
           onChange={handleTyping}
-          className="resize-none w-full p-4 rounded-md bg-transparent text-transparent outline-none absolute top-0 left-0 z-10 overflow-hidden"
+          className="resize-none w-full p-4 rounded-md bg-transparent text-transparent outline-none absolute top-0 left-0 z-10"
           autoFocus
           spellCheck={false}
-          style={{ height: 'auto', width: 'auto', overflow: 'hidden' }}
+          style={{
+            height: "auto",
+            minHeight: "100px", // Ensure enough height for multiple lines
+            lineHeight: "1.5em",
+            overflow: "hidden",
+          }}
         />
         <div
           ref={highlightedTextRef}
-          className="absolute top-0 left-0 w-full p-4 overflow-hidden pointer-events-none z-0 text-white/30 whitespace-pre-wrap"
-          style={{ 
-            overflowX: 'hidden', 
-            overflowY: 'hidden',
-            lineHeight: '1.5em',
-            wordWrap: 'break-word',
-        }}
+          className="absolute top-0 left-0 w-full p-4 pointer-events-none z-0 text-white/30 whitespace-pre-wrap"
+          style={{
+            lineHeight: "1.5em",
+            overflowX: "auto",
+            overflowY: "hidden",
+            whiteSpace: "pre-wrap",
+            wordBreak: "break-word", // Replaces deprecated wordWrap
+            scrollBehavior: "smooth", // Smooth scrolling for better UX
+          }}
         >
           {getHighlightedText()}
         </div>
